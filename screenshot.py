@@ -1,9 +1,8 @@
 
-import tkinter
-import numpy as np
+from transparentWindow import TransparentWindow
 import time
 import win32gui, win32ui, win32con,win32api
-from PIL import Image, ImageTk
+from PIL import Image
 
 hwnd_title = dict()
 def get_all_hwnd(hwnd,mouse):
@@ -49,98 +48,41 @@ def getWinImg():
 
 
 
+root=TransparentWindow()
 
-
-
-
-
-
- 
-root = tkinter.Tk()
-root.title('uncle1bo')        #窗口标题
-root.resizable(True, True)    #固定窗口大小
-windowWidth = 200               #获得当前窗口宽
-windowHeight = 430              #获得当前窗口高
-screenWidth,screenHeight = root.maxsize()     #获得屏幕宽和高
-geometryParam = '%dx%d+%d+%d'%(windowWidth, windowHeight, (screenWidth-windowWidth)/2, (screenHeight - windowHeight)/2)
-root.geometry(geometryParam)    #设置窗口大小及偏移坐标
-root.wm_attributes('-topmost',1)#窗口置顶
-root.overrideredirect(True)     #窗口无边框
-
-TRANSCOLOUR = '#3a3530'
-root.wm_attributes("-transparentcolor", TRANSCOLOUR)  #设置'gray'为透明色
-root.attributes("-alpha", 0.8)
 #label图片
-img=getWinImg().resize((windowWidth,windowHeight))
-img_gif = ImageTk.PhotoImage(image = img)
+img=getWinImg().resize((root.windowWidth,root.windowHeight))
+root.updateImage(img)
 
-
-
-label_img = tkinter.Label(root,image=img_gif,bg=TRANSCOLOUR)
-label_img.pack(fill=tkinter.BOTH, expand=True)
 
 def getImg():
     
-    img=getWinImg().resize((windowWidth,windowHeight))
+    img=getWinImg().resize((root.windowWidth,root.windowHeight))
     img_array=img.load()
     
     for y in range(img.size[1]):
         for x in range(img.size[0]):
             if img_array[x, y][0] < 100 and img_array[x, y][1] <100 and img_array[x, y][2] <100:
                 img_array[x, y] = (58, 53, 48)
-
-    img_gif = ImageTk.PhotoImage(image = img)
-    label_img.config(image=img_gif)
-    label_img.image = img_gif
-    
-bx,by=0,0
+    root.updateImage(img)
 
 def onClick(e):
-    global bx,by
-    bx,by=e.x,e.y
     x=10
-    print(e,windowWidth)
+    print(e,root.windowWidth)
     if e.y>50:
-        if e.x>windowWidth/2:
+        if e.x>root.windowWidth/2:
             x=200
         long_position = win32api.MAKELONG(x, 10)#模拟鼠标指针 传送到指定坐标
         win32api.SendMessage(hWnd, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, long_position)#模拟鼠标按下
         win32api.SendMessage(hWnd, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, long_position)#模拟鼠标弹起
         time.sleep(0.5)
         getImg()
-label_img.bind("<Button-1>",onClick)
-label_img.bind("<Button-3>",lambda e: root.destroy())
-
-def on_resize(evt):
-    global windowWidth,windowHeight
-    windowWidth=evt.width
-    windowHeight=evt.height
-root.bind('<Configure>', on_resize)
-
-
-def move(event):
-    new_x = (event.x - bx) + root.winfo_x()
-    new_y = (event.y - by) + root.winfo_y()
-    s = f"{windowWidth}x{windowHeight}+{new_x}+{new_y}"
-    root.geometry(s)
-root.bind("<B1-Motion>", move)  
-def onKeyPress(e):
-    e.y=52
-    if e.char=='z':
-        e.x=10
-        onClick(e)
-    elif e.char=='x':
-        e.x=windowWidth/2+10
-        onClick(e)
-    elif e.char=='c':
-        root.destroy()
 
 
 
+root.onClick=onClick
 
-root.bind('<KeyPress-z>',onKeyPress)
-root.bind('<KeyPress-x>',onKeyPress)
-root.bind('<KeyPress-c>',onKeyPress)
+
 getImg()
 root.mainloop()
 
