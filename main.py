@@ -1,5 +1,5 @@
 
-from transparentWindow import TransparentWindow
+from transparentQtWindow import TransparentWindow, app, sys
 import time
 import win32gui
 import win32ui
@@ -24,8 +24,8 @@ for k, v in hwnd_title.items():
         hWnd = k
 # 获取句柄窗口的大小信息
 left, top, right, bot = win32gui.GetWindowRect(hWnd)
-width = int((right - left)*1.4)
-height = int((bot - top)*1.4)-10
+width = int((right - left)*0.9)
+height = int((bot - top)*1)-65
 # 返回句柄窗口的设备环境，覆盖整个窗口，包括非客户区，标题栏，菜单，边框
 hWndDC = win32gui.GetWindowDC(hWnd)
 # 创建设备描述表
@@ -43,7 +43,7 @@ def getWinImg():
     # 将截图保存到saveBitMap中
     saveDC.SelectObject(saveBitMap)
     # 保存bitmap到内存设备描述表
-    saveDC.BitBlt((0, 0), (width, height), mfcDC, (15, 50), win32con.SRCCOPY)
+    saveDC.BitBlt((0, 0), (width, height), mfcDC, (20, 50), win32con.SRCCOPY)
 
     bmpinfo = saveBitMap.GetInfo()
     bmpstr = saveBitMap.GetBitmapBits(True)
@@ -69,7 +69,8 @@ def getImg():
     for y in range(img.size[1]):
         for x in range(img.size[0]):
             if img_array[x, y][0] < 100 and img_array[x, y][1] < 100 and img_array[x, y][2] < 100:
-                img_array[x, y] = (255, 255, 255, 0)
+                img_array[x, y] = (255, 255, 255, 1)
+
     root.updateImage(img)
 
 
@@ -78,7 +79,7 @@ def onClick(e):
     print(e, root.windowWidth)
     if e.y > 50:
         if e.x > root.windowWidth/2:
-            x = 200
+            x = 300
         long_position = win32api.MAKELONG(x, 10)  # 模拟鼠标指针 传送到指定坐标
         win32api.SendMessage(hWnd, win32con.WM_LBUTTONDOWN,
                              win32con.MK_LBUTTON, long_position)  # 模拟鼠标按下
@@ -92,4 +93,6 @@ root.onClick = onClick
 
 
 getImg()
-root.mainloop()
+
+root.show()
+sys.exit(app.exec_())
