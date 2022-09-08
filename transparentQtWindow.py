@@ -2,7 +2,7 @@ import sys
 import threading
 import time
 
-from PyQt5.QtCore import Qt, QPoint
+from PyQt5.QtCore import Qt, QPoint,QTimer
 from PyQt5.QtGui import QPixmap, QCursor
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel
 
@@ -23,6 +23,12 @@ class TransparentWindow(QMainWindow):
         self.label.setGeometry(0, 0, self.windowWidth, self.windowHeight)
         self.mousePressEventList = []
         self.mouseReleaseEventList = []
+        self.imageTimer=QTimer(self)
+
+    def updateImageLoop(self,msec,imageCallBack):
+        self.imageTimer.stop()
+        self.imageTimer.start(msec)
+        self.imageTimer.timeout.connect(imageCallBack)
 
     def updateImage(self, image):
         pixmap = image.toqpixmap()
@@ -52,4 +58,8 @@ class TransparentWindow(QMainWindow):
         QMouseEvent.accept()
         for f in self.mouseReleaseEventList:
             f(QMouseEvent)
+
+    def closeEvent(self, QCloseEvent) -> None:
+        self.imageTimer.stop()
+        return super().closeEvent(QCloseEvent)
            

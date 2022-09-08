@@ -1,17 +1,9 @@
 
 from transparentQtWindow import TransparentWindow, app, sys
 from targetWindow import TargetWindow
-import time
-import win32con
-import win32api
-
 
 root = TransparentWindow()
 target = TargetWindow()
-
-# label图片
-img = target.screenshot().resize((root.windowWidth, root.windowHeight))
-root.updateImage(img)
 
 
 def getImg():
@@ -42,15 +34,11 @@ def onClick(event):
     # x=48
     # y=572
     print(x, y)
-    target.click(x,y)
-    time.sleep(0.5)
-    getImg()
+    target.click(x, y)
 
 
 root.mouseReleaseEventList.append(onClick)
-
-
-getImg()
+root.updateImageLoop(100, getImg)
 
 root.show()
 sys.exit(app.exec_())
